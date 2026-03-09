@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JEE Mains Tracker 🚀</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Paytone+One&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ph:#4361ee;--ph-l:#e8edff;
+  --ch:#00b894;--ch-l:#e0fff8;
+  --ma:#e84393;--ma-l:#ffe0f0;
+  --ink:#1a1a2e;--soft:#f4f6ff;--w:#fff;
+  --gray:#f0f0f6;--mg:#d0d0e0;--dg:#888;
+  --yellow:#ffd32a;--green:#00d2a0;--red:#ff4757;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--soft);color:var(--ink);min-height:100vh}
+.blobs{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.09;animation:bf 16s ease-in-out infinite alternate}
+.b1{width:500px;height:500px;background:var(--ph);top:-100px;left:-100px}
+.b2{width:400px;height:400px;background:var(--ch);top:40%;right:-100px;animation-delay:5s}
+.b3{width:350px;height:350px;background:var(--ma);bottom:-80px;left:30%;animation-delay:10s}
+@keyframes bf{from{transform:translate(0,0)}to{transform:translate(20px,15px) scale(1.07)}}
+
+header{background:var(--ink);border-bottom:3px solid var(--yellow);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;position:sticky;top:0;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.logo{font-family:'Paytone One',sans-serif;font-size:1.4rem;color:#fff}
+.logo span{color:var(--yellow)}
+.hstats{display:flex;gap:.5rem;flex-wrap:wrap}
+.hs{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:.3rem .85rem;font-size:.76rem;font-weight:800;color:#fff}
+.hs b{color:var(--yellow)}
+
+.main{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;padding:1.2rem;max-width:1700px;margin:0 auto}
+@media(max-width:960px){.main{grid-template-columns:1fr}}
+
+.col{border-radius:18px;overflow:hidden;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;background:var(--w)}
+.col-hd{padding:.9rem 1rem .7rem;display:flex;flex-direction:column;gap:.45rem}
+.col-ph .col-hd{background:var(--ph)}
+.col-ch .col-hd{background:var(--ch)}
+.col-ma .col-hd{background:var(--ma)}
+.col-title{font-family:'Paytone One',sans-serif;font-size:1.25rem;color:#fff}
+.col-sub{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.7)}
+.col-pills{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
+.pill{background:rgba(255,255,255,.18);border-radius:15px;padding:.25rem .7rem;font-size:.7rem;font-weight:900;color:#fff}
+.add-chap-btn{margin-left:auto;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.4);border-radius:10px;padding:.28rem .75rem;font-size:.72rem;font-weight:900;color:#fff;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap}
+.add-chap-btn:hover{background:rgba(255,255,255,.32)}
+.prog-wrap{height:5px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:#fff;transition:width .5s}
+
+.chap-area{flex:1;overflow-y:auto;padding:.5rem .7rem;max-height:52vh}
+.chap-area::-webkit-scrollbar{width:4px}
+.chap-area::-webkit-scrollbar-thumb{background:var(--mg);border-radius:2px}
+.sec-lbl{font-size:.65rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;padding:.18rem .55rem;border-radius:8px;margin:.6rem 0 .35rem;display:inline-block}
+.col-ph .sec-lbl{background:var(--ph-l);color:var(--ph)}
+.col-ch .sec-lbl{background:var(--ch-l);color:var(--ch)}
+.col-ma .sec-lbl{background:var(--ma-l);color:var(--ma)}
+
+.ci{display:flex;align-items:center;gap:.4rem;padding:.42rem .5rem;border-radius:10px;border:2px solid transparent;margin-bottom:.32rem;background:rgba(255,255,255,.75)}
+.ci:hover{border-color:var(--mg);background:#fff}
+.ci.done .cn{text-decoration:line-through;color:var(--dg)}
+.ci.done{opacity:.65}
+
+.ctick{width:22px;height:22px;border-radius:6px;border:2px solid;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900}
+.col-ph .ctick{border-color:var(--ph);color:var(--ph)}
+.col-ch .ctick{border-color:var(--ch);color:var(--ch)}
+.col-ma .ctick{border-color:var(--ma);color:var(--ma)}
+.ci.done .ctick{background:var(--green);border-color:var(--green);color:#fff}
+.ci.no   .ctick{background:var(--red);border-color:var(--red);color:#fff}
+
+.cn{flex:1;font-weight:700;font-size:.8rem;line-height:1.3;min-width:0}
+.cn.custom::before{content:'★ ';font-size:.65rem;opacity:.55}
+.my-tag{font-size:.58rem;font-weight:900;padding:.08rem .38rem;border-radius:7px;background:var(--yellow);color:var(--ink);flex-shrink:0}
+
+/* ─── PER-CHAPTER REVISION ─── */
+.crev{display:flex;align-items:center;gap:3px;flex-shrink:0;background:rgba(0,0,0,.05);border-radius:9px;padding:3px 4px}
+.crb{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--mg);background:#fff;cursor:pointer;font-size:.85rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;font-family:'Nunito',sans-serif}
+.crb:hover{border-color:var(--ink)}
+.col-ph .crb{color:var(--ph)}
+.col-ch .crb{color:var(--ch)}
+.col-ma .crb{color:var(--ma)}
+.crev-mid{display:flex;flex-direction:column;align-items:center;min-width:26px;gap:0}
+.crev-num{font-family:'Paytone One',sans-serif;font-size:.9rem;line-height:1;cursor:pointer;padding:1px 3px;border-radius:4px}
+.crev-num:hover{background:rgba(0,0,0,.08)}
+.col-ph .crev-num{color:var(--ph)}
+.col-ch .crev-num{color:var(--ch)}
+.col-ma .crev-num{color:var(--ma)}
+.crev-lbl{font-size:.5rem;font-weight:900;color:var(--dg);letter-spacing:.03em;line-height:1}
+.crev-inp{width:30px;border:2px solid var(--ink);border-radius:5px;padding:.1rem .1rem;font-family:'Paytone One',sans-serif;font-size:.85rem;text-align:center;outline:none;display:none}
+.col-ph .crev-inp{color:var(--ph)}
+.col-ch .crev-inp{color:var(--ch)}
+.col-ma .crev-inp{color:var(--ma)}
+.cfire{font-size:.72rem;width:14px;text-align:center;line-height:1}
+
+.cacts{display:flex;gap:2px;opacity:0;flex-shrink:0}
+.ci:hover .cacts{opacity:1}
+.cab{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--mg);background:#fff;cursor:pointer;font-size:.65rem;display:flex;align-items:center;justify-content:center}
+.cab:hover{border-color:var(--ink);background:var(--gray)}
+.cab.del:hover{border-color:var(--red);background:#fff0f0;color:var(--red)}
+.empty-msg{text-align:center;color:var(--dg);font-size:.76rem;font-weight:700;padding:.8rem;opacity:.7}
+
+.notes-sec{padding:.65rem .7rem;border-top:2px dashed rgba(26,26,46,.1);background:rgba(248,248,255,.6)}
+.notes-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem}
+.notes-ttl{font-weight:900;font-size:.78rem}
+.note-add{border:1.5px solid var(--mg);border-radius:8px;padding:.18rem .5rem;font-size:.67rem;font-weight:800;color:var(--dg);cursor:pointer;background:none;font-family:'Nunito',sans-serif}
+.note-add:hover{border-color:var(--ink);color:var(--ink)}
+.ni{display:flex;align-items:flex-start;gap:.45rem;padding:.4rem .45rem;border-radius:9px;border:2px solid var(--mg);margin-bottom:.3rem;background:#fff}
+.ni:hover{border-color:var(--ink)}
+.ntick{width:19px;height:19px;border-radius:5px;border:2px solid;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;margin-top:.1rem}
+.col-ph .ntick{border-color:var(--ph)}
+.col-ch .ntick{border-color:var(--ch)}
+.col-ma .ntick{border-color:var(--ma)}
+.ni.done .ntick{background:var(--green);border-color:var(--green);color:#fff}
+.ni.no   .ntick{background:var(--red);border-color:var(--red);color:#fff}
+.ntxt{flex:1;font-size:.76rem;font-weight:700;line-height:1.45;outline:none;border:none;background:transparent;font-family:'Nunito',sans-serif;color:var(--ink);resize:none;min-height:17px;word-break:break-word}
+.ni.done .ntxt{text-decoration:line-through;opacity:.5}
+.ndel{background:none;border:none;cursor:pointer;font-size:.78rem;opacity:0;flex-shrink:0}
+.ni:hover .ndel{opacity:.55}
+
+.ov{display:none;position:fixed;inset:0;z-index:400;background:rgba(26,26,46,.65);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem}
+.ov.open{display:flex}
+.modal{background:#fff;border:3px solid var(--ink);border-radius:18px;width:100%;max-width:400px;padding:1.6rem;box-shadow:7px 7px 0 var(--ink);animation:pop .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-family:'Paytone One',sans-serif;font-size:1.05rem;margin-bottom:.9rem}
+.modal input,.modal textarea{width:100%;border:2.5px solid var(--ink);border-radius:11px;padding:.6rem .85rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;outline:none;margin-bottom:.75rem}
+.modal textarea{resize:vertical;min-height:70px}
+.macts{display:flex;gap:.65rem}
+.msave{flex:1;background:var(--green);color:#fff;border:2px solid var(--ink);border-radius:11px;padding:.7rem;font-size:.88rem;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif}
+.mcancel{flex:1;background:var(--gray);color:var(--ink);border:2px solid var(--ink);border-radius:11px;padding:.7rem;font-size:.88rem;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif}
+
+.toast{position:fixed;bottom:1.8rem;left:50%;transform:translateX(-50%) translateY(25px);background:var(--ink);color:var(--yellow);padding:.6rem 1.3rem;border-radius:40px;border:2px solid var(--yellow);font-weight:900;font-size:.84rem;opacity:0;pointer-events:none;z-index:500;transition:all .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<header>
+  <div class="logo">JEE <span>Mains</span> Tracker 🚀</div>
+  <div class="hstats">
+    <div class="hs">⚛️ Physics <b id="hph">-</b></div>
+    <div class="hs">🧪 Chemistry <b id="hch">-</b></div>
+    <div class="hs">📐 Maths <b id="hma">-</b></div>
+    <div class="hs">🔁 Revisions <b id="hrev">0</b></div>
+    <div class="hs">📊 Overall <b id="hall">0%</b></div>
+  </div>
+</header>
+
+<div class="main" id="G"></div>
+
+<div class="ov" id="addModal">
+  <div class="modal">
+    <h3 id="addTitle">➕ Add Chapter</h3>
+    <input id="addName" placeholder="Chapter / Topic name…"/>
+    <div class="macts">
+      <button class="mcancel" onclick="closeModal('addModal')">Cancel</button>
+      <button class="msave" onclick="doAddChapter()">Add ✓</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="noteModal">
+  <div class="modal">
+    <h3 id="noteTitle">📝 Add Note</h3>
+    <textarea id="noteText" placeholder="Write your note here…"></textarea>
+    <div class="macts">
+      <button class="mcancel" onclick="closeModal('noteModal')">Cancel</button>
+      <button class="msave" onclick="doAddNote()">Save ✓</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="T"></div>
+
+<script>
+var SYL = {
+  ph:[
+    {s:'Class 11 — Mechanics',c:['Units, Dimensions & Errors','Kinematics (1D & 2D)','Laws of Motion & Friction','Work, Energy & Power','Circular Motion','Centre of Mass & Collisions','Rotational Motion','Gravitation','Elasticity & Solids','Fluid Mechanics','Thermal Expansion','Thermodynamics','Kinetic Theory of Gases','Simple Harmonic Motion','Waves & Sound']},
+    {s:'Class 12 — Electro & Modern',c:['Electric Charges & Fields','Electric Potential & Capacitance','Current Electricity','Moving Charges & Magnetism','Magnetism & Matter','Electromagnetic Induction','Alternating Current','Electromagnetic Waves','Ray Optics','Wave Optics','Dual Nature of Matter','Atoms','Nuclei','Semiconductor Devices','Communication Systems']}
+  ],
+  ch:[
+    {s:'Physical Chemistry',c:['Mole Concept & Stoichiometry','Atomic Structure','Chemical Bonding','States of Matter','Thermodynamics','Chemical Equilibrium','Ionic Equilibrium','Redox Reactions','Electrochemistry','Chemical Kinetics','Surface Chemistry','Solutions']},
+    {s:'Inorganic Chemistry',c:['Periodic Table & Periodicity','s-Block Elements','p-Block Elements','d & f Block Elements','Coordination Compounds','Metallurgy','Qualitative Analysis','Hydrogen','Environmental Chemistry']},
+    {s:'Organic Chemistry',c:['General Organic Chemistry','Hydrocarbons','Haloalkanes & Haloarenes','Alcohols, Phenols & Ethers','Aldehydes, Ketones & Acids','Amines','Biomolecules','Polymers','Chemistry in Everyday Life']}
+  ],
+  ma:[
+    {s:'Algebra',c:['Sets, Relations & Functions','Complex Numbers','Quadratic Equations','Sequences & Series','Permutations & Combinations','Binomial Theorem','Matrices & Determinants','Probability & Statistics']},
+    {s:'Calculus',c:['Limits, Continuity & Differentiability','Differentiation','Application of Derivatives','Indefinite Integration','Definite Integration','Area Under Curves','Differential Equations']},
+    {s:'Coordinate & Trigonometry',c:['Straight Lines','Circles','Parabola','Ellipse','Hyperbola','Trigonometric Functions','Inverse Trigonometric Functions','Heights & Distances']},
+    {s:'Vectors & 3D',c:['Vector Algebra','3D Geometry','Mathematical Reasoning']}
+  ]
+};
+
+var LABELS = {ph:'Physics', ch:'Chemistry', ma:'Maths'};
+var EMOJIS = {ph:'⚛️', ch:'🧪', ma:'📐'};
+
+function lget(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lset(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+function freshChaps(subj){
+  var list=[];
+  SYL[subj].forEach(function(sec){
+    sec.c.forEach(function(name){
+      list.push({id:'c'+Date.now()+Math.round(Math.random()*9999), name:name, sec:sec.s, custom:false, status:'pending', rev:0});
+    });
+  });
+  return list;
+}
+
+var S = {
+  ph:{chapters:lget('jt_ph_c',null)||freshChaps('ph'), notes:lget('jt_ph_n',[])},
+  ch:{chapters:lget('jt_ch_c',null)||freshChaps('ch'), notes:lget('jt_ch_n',[])},
+  ma:{chapters:lget('jt_ma_c',null)||freshChaps('ma'), notes:lget('jt_ma_n',[])}
+};
+
+function save(){
+  lset('jt_ph_c',S.ph.chapters); lset('jt_ph_n',S.ph.notes);
+  lset('jt_ch_c',S.ch.chapters); lset('jt_ch_n',S.ch.notes);
+  lset('jt_ma_c',S.ma.chapters); lset('jt_ma_n',S.ma.notes);
+}
+
+var CUR='ph';
+
+function toast(msg){
+  var el=document.getElementById('T');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(function(){el.classList.remove('show');},2500);
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+document.addEventListener('click',function(e){
+  if(e.target.id==='addModal') closeModal('addModal');
+  if(e.target.id==='noteModal') closeModal('noteModal');
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){closeModal('addModal');closeModal('noteModal');}
+  if(e.key==='Enter' && document.getElementById('addModal').classList.contains('open')) doAddChapter();
+});
+
+function openAddChapter(s){
+  CUR=s;
+  document.getElementById('addTitle').textContent='➕ Add Chapter to '+LABELS[s];
+  document.getElementById('addName').value='';
+  openModal('addModal');
+  setTimeout(function(){document.getElementById('addName').focus();},80);
+}
+function doAddChapter(){
+  var name=document.getElementById('addName').value.trim();
+  if(!name){toast('⚠️ Enter a name!');return;}
+  S[CUR].chapters.push({id:'c'+Date.now(), name:name, sec:null, custom:true, status:'pending', rev:0});
+  save(); closeModal('addModal'); renderCol(CUR);
+  toast('✅ Added to '+LABELS[CUR]+'!');
+}
+
+function openAddNote(s){
+  CUR=s;
+  document.getElementById('noteTitle').textContent='📝 Add Note — '+LABELS[s];
+  document.getElementById('noteText').value='';
+  openModal('noteModal');
+  setTimeout(function(){document.getElementById('noteText').focus();},80);
+}
+function doAddNote(){
+  var txt=document.getElementById('noteText').value.trim();
+  if(!txt){toast('⚠️ Write something!');return;}
+  S[CUR].notes.push({id:'n'+Date.now(), text:txt, status:'pending'});
+  save(); closeModal('noteModal'); renderNotes(CUR);
+  toast('📝 Note saved!');
+}
+
+function cycleStatus(s,id){
+  var ch=null;
+  for(var i=0;i<S[s].chapters.length;i++){if(S[s].chapters[i].id===id){ch=S[s].chapters[i];break;}}
+  if(!ch) return;
+  ch.status = ch.status==='pending'?'done': ch.status==='done'?'no':'pending';
+  save();
+  var el=document.querySelector('[data-cid="'+id+'"]');
+  if(el){var nw=buildChapRow(s,ch); el.parentNode.replaceChild(nw,el);}
+  updatePills(s); updateHeader();
+  var msgs={done:'✅ Done! — '+ch.name, no:'❌ Skipped — '+ch.name, pending:'↩ Reset — '+ch.name};
+  toast(msgs[ch.status]);
+}
+
+function moveChap(s,id,dir){
+  var arr=S[s].chapters, i=-1;
+  for(var x=0;x<arr.length;x++){if(arr[x].id===id){i=x;break;}}
+  var j=i+dir;
+  if(i<0||j<0||j>=arr.length) return;
+  var tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+  save(); renderCol(s); toast('↕ Chapter moved!');
+}
+
+function removeChap(s,id){
+  var ch=null;
+  for(var i=0;i<S[s].chapters.length;i++){if(S[s].chapters[i].id===id){ch=S[s].chapters[i];break;}}
+  if(!ch||!confirm('Remove "'+ch.name+'"?')) return;
+  S[s].chapters=S[s].chapters.filter(function(c){return c.id!==id;});
+  save(); renderCol(s); toast('🗑 Removed!');
+}
+
+function changeRev(s,id,delta){
+  var ch=null;
+  for(var i=0;i<S[s].chapters.length;i++){if(S[s].chapters[i].id===id){ch=S[s].chapters[i];break;}}
+  if(!ch) return;
+  ch.rev=Math.max(0,(ch.rev||0)+delta);
+  save();
+  var safe=id.replace(/[^a-zA-Z0-9]/g,'_');
+  var numEl=document.getElementById('rn_'+safe);
+  var fireEl=document.getElementById('rf_'+safe);
+  if(numEl) numEl.textContent=ch.rev;
+  if(fireEl) fireEl.textContent=fireEmoji(ch.rev);
+  updateHeader();
+  if(delta>0) toast('🔁 '+ch.name+' × '+ch.rev);
+}
+
+function editRev(s,id){
+  var safe=id.replace(/[^a-zA-Z0-9]/g,'_');
+  var numEl=document.getElementById('rn_'+safe);
+  var inp=document.getElementById('ri_'+safe);
+  if(!numEl||!inp) return;
+  var ch=null;
+  for(var i=0;i<S[s].chapters.length;i++){if(S[s].chapters[i].id===id){ch=S[s].chapters[i];break;}}
+  inp.value=ch?ch.rev||0:0;
+  numEl.style.display='none';
+  inp.style.display='inline-block';
+  inp.focus(); inp.select();
+}
+
+function saveRevEdit(s,id){
+  var safe=id.replace(/[^a-zA-Z0-9]/g,'_');
+  var numEl=document.getElementById('rn_'+safe);
+  var inp=document.getElementById('ri_'+safe);
+  if(!numEl||!inp) return;
+  var ch=null;
+  for(var i=0;i<S[s].chapters.length;i++){if(S[s].chapters[i].id===id){ch=S[s].chapters[i];break;}}
+  if(ch){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0) ch.rev=v;}
+  inp.style.display='none';
+  numEl.style.display='';
+  numEl.textContent=ch?ch.rev||0:0;
+  var fireEl=document.getElementById('rf_'+safe);
+  if(fireEl&&ch) fireEl.textContent=fireEmoji(ch.rev);
+  save(); updateHeader();
+  toast('✏️ Revision set to '+(ch?ch.rev||0:0));
+}
+
+function fireEmoji(n){return n>=5?'🔥':n>=3?'⭐':n>=1?'✨':'';}
+
+function cycleNote(s,id){
+  var n=null;
+  for(var i=0;i<S[s].notes.length;i++){if(S[s].notes[i].id===id){n=S[s].notes[i];break;}}
+  if(!n) return;
+  n.status=n.status==='pending'?'done':n.status==='done'?'no':'pending';
+  save(); renderNotes(s);
+  var msgs={done:'✅ Note done!',no:'❌ Note skipped',pending:'↩ Note reset'};
+  toast(msgs[n.status]);
+}
+function editNoteText(s,id,el){
+  var n=null;
+  for(var i=0;i<S[s].notes.length;i++){if(S[s].notes[i].id===id){n=S[s].notes[i];break;}}
+  if(n){n.text=el.textContent.trim();save();}
+}
+function deleteNote(s,id){
+  S[s].notes=S[s].notes.filter(function(x){return x.id!==id;});
+  save(); renderNotes(s); toast('🗑 Note deleted');
+}
+
+function buildChapRow(s,ch){
+  var div=document.createElement('div');
+  div.className='ci'+(ch.status==='done'?' done':ch.status==='no'?' no':'');
+  div.setAttribute('data-cid',ch.id);
+  var tick=ch.status==='done'?'✓':ch.status==='no'?'✕':'';
+  var rev=ch.rev||0;
+  var safe=ch.id.replace(/[^a-zA-Z0-9]/g,'_');
+  var fire=fireEmoji(rev);
+  div.innerHTML=
+    '<div class="ctick" onclick="cycleStatus(\''+s+'\',\''+ch.id+'\')">'+tick+'</div>'+
+    '<div class="cn'+(ch.custom?' custom':'')+'">'+(ch.name)+'</div>'+
+    (ch.custom?'<span class="my-tag">MY</span>':'')+
+    '<div class="crev">'+
+      '<button class="crb" onclick="changeRev(\''+s+'\',\''+ch.id+'\',-1)">−</button>'+
+      '<div class="crev-mid">'+
+        '<span class="crev-num" id="rn_'+safe+'" onclick="editRev(\''+s+'\',\''+ch.id+'\')" title="Click to edit">'+rev+'</span>'+
+        '<input class="crev-inp" id="ri_'+safe+'" type="number" min="0" '+
+          'onblur="saveRevEdit(\''+s+'\',\''+ch.id+'\')" '+
+          'onkeydown="if(event.key===\'Enter\')saveRevEdit(\''+s+'\',\''+ch.id+'\')"/>'+
+        '<span class="crev-lbl">rev</span>'+
+      '</div>'+
+      '<button class="crb" onclick="changeRev(\''+s+'\',\''+ch.id+'\',1)">＋</button>'+
+      '<span class="cfire" id="rf_'+safe+'">'+fire+'</span>'+
+    '</div>'+
+    '<div class="cacts">'+
+      '<button class="cab" onclick="moveChap(\''+s+'\',\''+ch.id+'\',-1)">↑</button>'+
+      '<button class="cab" onclick="moveChap(\''+s+'\',\''+ch.id+'\',1)">↓</button>'+
+      '<button class="cab del" onclick="removeChap(\''+s+'\',\''+ch.id+'\')">✕</button>'+
+    '</div>';
+  return div;
+}
+
+function buildNoteRow(s,n){
+  var div=document.createElement('div');
+  div.className='ni '+(n.status||'');
+  var tick=n.status==='done'?'✓':n.status==='no'?'✕':'';
+  div.innerHTML=
+    '<div class="ntick" onclick="cycleNote(\''+s+'\',\''+n.id+'\')">'+tick+'</div>'+
+    '<div class="ntxt'+(n.status==='done'?' strike':'')+'" contenteditable="true" '+
+      'onblur="editNoteText(\''+s+'\',\''+n.id+'\',this)">'+n.text+'</div>'+
+    '<button class="ndel" onclick="deleteNote(\''+s+'\',\''+n.id+'\')">🗑</button>';
+  return div;
+}
+
+function buildCol(s){
+  var data=S[s];
+  var done=data.chapters.filter(function(c){return c.status==='done';}).length;
+  var no=data.chapters.filter(function(c){return c.status==='no';}).length;
+  var tot=data.chapters.length;
+  var pct=tot?Math.round(done/tot*100):0;
+  var totRev=data.chapters.reduce(function(a,c){return a+(c.rev||0);},0);
+
+  var col=document.createElement('div');
+  col.className='col col-'+s;
+  col.id='col-'+s;
+
+  var hd=document.createElement('div');
+  hd.className='col-hd';
+  hd.innerHTML=
+    '<div class="col-title">'+EMOJIS[s]+'  '+LABELS[s]+'</div>'+
+    '<div class="col-sub">JEE Mains Syllabus • '+tot+' Chapters</div>'+
+    '<div class="col-pills">'+
+      '<span class="pill" id="pd-'+s+'">✅ '+done+'/'+tot+'</span>'+
+      '<span class="pill" id="pn-'+s+'">❌ '+no+' skip</span>'+
+      '<span class="pill" id="pr-'+s+'">🔁 '+totRev+' rev</span>'+
+      '<button class="add-chap-btn" onclick="openAddChapter(\''+s+'\')">＋ Add Chapter</button>'+
+    '</div>'+
+    '<div class="prog-wrap"><div class="prog-fill" id="pb-'+s+'" style="width:'+pct+'%"></div></div>';
+  col.appendChild(hd);
+
+  var area=document.createElement('div');
+  area.className='chap-area';
+  area.id='ca-'+s;
+
+  if(data.chapters.length===0){
+    area.innerHTML='<div class="empty-msg">No chapters. Click ＋ Add!</div>';
+  } else {
+    var groups={};
+    data.chapters.forEach(function(ch){
+      var key=ch.custom?'★ My Custom Chapters':(ch.sec||'Other');
+      if(!groups[key]) groups[key]=[];
+      groups[key].push(ch);
+    });
+    Object.keys(groups).forEach(function(secName){
+      var lbl=document.createElement('div');
+      lbl.className='sec-lbl';
+      lbl.textContent=secName;
+      area.appendChild(lbl);
+      groups[secName].forEach(function(ch){area.appendChild(buildChapRow(s,ch));});
+    });
+  }
+  col.appendChild(area);
+
+  var ns=document.createElement('div');
+  ns.className='notes-sec';
+  ns.innerHTML=
+    '<div class="notes-hd">'+
+      '<span class="notes-ttl">📝 Notes</span>'+
+      '<button class="note-add" onclick="openAddNote(\''+s+'\')">＋ Add Note</button>'+
+    '</div>'+
+    '<div id="nd-'+s+'"></div>';
+  col.appendChild(ns);
+  return col;
+}
+
+function renderNotes(s){
+  var nd=document.getElementById('nd-'+s);
+  if(!nd) return;
+  nd.innerHTML='';
+  if(S[s].notes.length===0){
+    nd.innerHTML='<div class="empty-msg">No notes yet!</div>';
+  } else {
+    S[s].notes.forEach(function(n){nd.appendChild(buildNoteRow(s,n));});
+  }
+}
+
+function updatePills(s){
+  var done=S[s].chapters.filter(function(c){return c.status==='done';}).length;
+  var no=S[s].chapters.filter(function(c){return c.status==='no';}).length;
+  var tot=S[s].chapters.length;
+  var pct=tot?Math.round(done/tot*100):0;
+  var totRev=S[s].chapters.reduce(function(a,c){return a+(c.rev||0);},0);
+  var pd=document.getElementById('pd-'+s);
+  var pn=document.getElementById('pn-'+s);
+  var pr=document.getElementById('pr-'+s);
+  var pb=document.getElementById('pb-'+s);
+  if(pd) pd.textContent='✅ '+done+'/'+tot;
+  if(pn) pn.textContent='❌ '+no+' skip';
+  if(pr) pr.textContent='🔁 '+totRev+' rev';
+  if(pb) pb.style.width=pct+'%';
+}
+
+function updateHeader(){
+  ['ph','ch','ma'].forEach(function(s){
+    var done=S[s].chapters.filter(function(c){return c.status==='done';}).length;
+    var tot=S[s].chapters.length;
+    var el=document.getElementById('h'+s);
+    if(el) el.textContent=done+'/'+tot;
+    updatePills(s);
+  });
+  var totalRev=0;
+  ['ph','ch','ma'].forEach(function(s){
+    S[s].chapters.forEach(function(c){totalRev+=(c.rev||0);});
+  });
+  var rEl=document.getElementById('hrev');
+  if(rEl) rEl.textContent=totalRev;
+  var allDone=0,allTot=0;
+  ['ph','ch','ma'].forEach(function(s){
+    allDone+=S[s].chapters.filter(function(c){return c.status==='done';}).length;
+    allTot+=S[s].chapters.length;
+  });
+  var el=document.getElementById('hall');
+  if(el) el.textContent=(allTot?Math.round(allDone/allTot*100):0)+'%';
+}
+
+function renderCol(s){
+  var col=buildCol(s);
+  var ex=document.getElementById('col-'+s);
+  if(ex) ex.parentNode.replaceChild(col,ex);
+  renderNotes(s);
+  updateHeader();
+}
+
+function init(){
+  var g=document.getElementById('G');
+  g.innerHTML='';
+  ['ph','ch','ma'].forEach(function(s){
+    var col=buildCol(s);
+    g.appendChild(col);
+    renderNotes(s);
+  });
+  updateHeader();
+}
+
+init();
+</script>
+</body>
+</html>
